@@ -1,0 +1,16 @@
+name: encryption
+description: "RSA and AES encryption helper classes."
+version: 0.0.1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  encrypt: ^5.0.3
+  crypto: ^3.0.3
+  pointycastle: ^3.9.0
+  asn1lib: ^1.5.2
+
+dev_dependencies:
+  lints: ^3.0.0
