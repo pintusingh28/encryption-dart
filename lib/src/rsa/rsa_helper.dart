@@ -1,25 +1,22 @@
-import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/export.dart';
 
 class RsaEncryptionHelper {
   RsaEncryptionHelper({
-    required this.publicKey,
-    required this.privateKey,
+    required RSAPublicKey publicKey,
+    required RSAPrivateKey privateKey,
   }) {
-    _encryption.init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
-    _decryption.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
+    _encrypter = Encrypter(
+      RSA(publicKey: publicKey, privateKey: privateKey, digest: RSADigest.SHA256, encoding: RSAEncoding.OAEP),
+    );
   }
 
-  final RSAPrivateKey privateKey;
-  final RSAPublicKey publicKey;
+  late final Encrypter _encrypter;
 
-  final OAEPEncoding _encryption = OAEPEncoding(RSAEngine());
-  final OAEPEncoding _decryption = OAEPEncoding(RSAEngine());
-
-  static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRsaKeyPair({int bitLength = 592}) {
+  static AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> generateRsaKeyPair({int bitLength = 256}) {
     final secureRandom = FortunaRandom();
     final random = math.Random.secure();
     final seeds = List.generate(32, (index) => random.nextInt(255));
@@ -31,19 +28,16 @@ class RsaEncryptionHelper {
       secureRandom,
     ));
     final pair = keyGenerator.generateKeyPair();
-    return AsymmetricKeyPair(
-        pair.publicKey as RSAPublicKey, pair.privateKey as RSAPrivateKey);
+    return AsymmetricKeyPair(pair.publicKey as RSAPublicKey, pair.privateKey as RSAPrivateKey);
   }
 
   String encrypt(String plaintext) {
-    var cipherText =
-        _encryption.process(Uint8List.fromList(plaintext.codeUnits));
-    return base64Encode(cipherText);
+    var cipherText = _encrypter.encrypt(plaintext);
+    return cipherText.base64;
   }
 
   String decrypt(String ciphertext) {
-    final data = base64Decode(ciphertext);
-    var decrypted = _decryption.process(data);
-    return String.fromCharCodes(decrypted);
+    var decrypted = _encrypter.decrypt64(ciphertext);
+    return decrypted;
   }
 }

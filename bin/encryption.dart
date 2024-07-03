@@ -1,11 +1,9 @@
+import 'package:encrypt/encrypt.dart';
 import 'package:encryption/encryption.dart';
 
 void main() {
   final result = RsaEncryptionHelper.generateRsaKeyPair(bitLength: 1024);
-  final encryption = RsaEncryptionHelper(
-    privateKey: result.privateKey,
-    publicKey: result.publicKey,
-  );
+  final encryption = RsaEncryptionHelper(privateKey: result.privateKey, publicKey: result.publicKey);
 
   print("publicKey: ${RsaKeyHelper.encodePublicKey(result.publicKey)}");
   print("privateKey: ${RsaKeyHelper.encodePrivateKey(result.privateKey)}");
